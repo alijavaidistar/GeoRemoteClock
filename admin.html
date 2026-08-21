@@ -282,23 +282,6 @@
       font-weight: bold;
     }
 
-    .week-chips {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-
-    .chip {
-      background-color: #f1f3f5;
-      padding: 6px 12px;
-      font-size: 0.85rem;
-      color: #495057;
-      border-radius: 4px;
-    }
-
-    .chip b { color: #1a1a1a; }
-
     .table-wrap { overflow-x: auto; }
 
     .emp-card table {
@@ -325,17 +308,6 @@
     .emp-card td { color: #1a1a1a; font-weight: bold; }
 
     .emp-card td.zero { color: #adb5bd; font-weight: normal; }
-
-    .emp-card th.total-col {
-      background-color: #2e5da8;
-      color: #ffffff;
-    }
-
-    .emp-card td.total-col {
-      background-color: #eaf1fb;
-      color: #2e5da8;
-      font-weight: bold;
-    }
 
     .sess-title {
       font-size: 0.85rem;
@@ -468,16 +440,6 @@
       return { start, end, len };
     }
 
-    function rangeDays(range) {
-      const days = [];
-      for (let i = 0; i < range.len; i++) {
-        const d = new Date(range.start);
-        d.setDate(range.start.getDate() + i);
-        days.push(d);
-      }
-      return days;
-    }
-
     async function fetchReport(range) {
       const res = await fetch(SCRIPT_URL, {
         method: 'POST',
@@ -492,7 +454,6 @@
     }
 
     function render(data, range) {
-      const days = rangeDays(range);
       const emps = data.employees;
 
       if (!emps.length) {
@@ -511,39 +472,12 @@
         + '</div>';
 
       html += '<div class="emp-grid">';
-      const wd = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
       for (const e of emps) {
-        let w1 = 0, w2 = 0;
-        days.forEach((d, i) => {
-          const h = e.days[ymd(d)] || 0;
-          if (i < 7) w1 += h; else w2 += h;
-        });
-        w1 = Math.round(w1 * 100) / 100;
-        w2 = Math.round(w2 * 100) / 100;
-
         const badge = e.open ? '<span class="open-badge">clocked in</span>' : '';
         html += '<div class="emp-card">'
           + '<div class="emp-head"><div class="emp-name">' + e.name + badge + '</div>'
           + '<div class="emp-total">' + e.total.toFixed(2) + '<span class="unit">hrs</span></div></div>';
-
-        if (mode === 'period') {
-          html += '<div class="week-chips">'
-            + '<span class="chip">Week 1: <b>' + w1.toFixed(2) + '</b></span>'
-            + '<span class="chip">Week 2: <b>' + w2.toFixed(2) + '</b></span>'
-            + '</div>';
-        }
-
-        html += '<div class="table-wrap"><table><tr>';
-        for (const d of days) {
-          html += '<th>' + wd[d.getDay()] + ' ' + d.getDate() + '</th>';
-        }
-        html += '<th class="total-col">Total</th></tr><tr>';
-        for (const d of days) {
-          const h = e.days[ymd(d)] || 0;
-          html += h ? '<td>' + h.toFixed(2) + '</td>' : '<td class="zero">-</td>';
-        }
-        html += '<td class="total-col">' + e.total.toFixed(2) + '</td></tr></table></div>';
 
         // ---- Punch times detail ----
         if (e.sessions && e.sessions.length) {
