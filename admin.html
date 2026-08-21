@@ -239,11 +239,11 @@
       margin-top: 4px;
     }
 
-    /* ===== Employee cards ===== */
+    /* ===== Employee sections (stacked vertically) ===== */
     .emp-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-      gap: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
 
     .emp-card {
@@ -299,41 +299,43 @@
 
     .chip b { color: #1a1a1a; }
 
-    .day-strip {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
+    .table-wrap { overflow-x: auto; }
+
+    .emp-card table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.9rem;
     }
 
-    .day-cell {
-      border: 1px solid #e9ecef;
-      padding: 5px 2px;
+    .emp-card th, .emp-card td {
+      border: 1px solid #dee2e6;
+      padding: 8px 6px;
       text-align: center;
-      background-color: #fafbfc;
+      white-space: nowrap;
     }
 
-    .day-cell.has {
-      background-color: #eaf1fb;
-      border-color: #b9cdea;
-    }
-
-    .day-label {
-      font-size: 0.65rem;
-      color: #8a94a6;
+    .emp-card th {
+      background-color: #f1f3f5;
       font-weight: bold;
+      color: #495057;
+      font-size: 0.8rem;
       text-transform: uppercase;
     }
 
-    .day-cell.has .day-label { color: #2e5da8; }
+    .emp-card td { color: #1a1a1a; font-weight: bold; }
 
-    .day-val {
-      font-size: 0.82rem;
-      font-weight: bold;
-      color: #adb5bd;
-      margin-top: 2px;
+    .emp-card td.zero { color: #adb5bd; font-weight: normal; }
+
+    .emp-card th.total-col {
+      background-color: #2e5da8;
+      color: #ffffff;
     }
 
-    .day-cell.has .day-val { color: #1a1a1a; }
+    .emp-card td.total-col {
+      background-color: #eaf1fb;
+      color: #2e5da8;
+      font-weight: bold;
+    }
 
     .open-badge {
       display: inline-block;
@@ -519,15 +521,16 @@
             + '</div>';
         }
 
-        html += '<div class="day-strip">';
+        html += '<div class="table-wrap"><table><tr>';
+        for (const d of days) {
+          html += '<th>' + wd[d.getDay()] + ' ' + d.getDate() + '</th>';
+        }
+        html += '<th class="total-col">Total</th></tr><tr>';
         for (const d of days) {
           const h = e.days[ymd(d)] || 0;
-          html += '<div class="day-cell' + (h ? ' has' : '') + '">'
-            + '<div class="day-label">' + wd[d.getDay()] + ' ' + d.getDate() + '</div>'
-            + '<div class="day-val">' + (h ? h.toFixed(2) : '-') + '</div>'
-            + '</div>';
+          html += h ? '<td>' + h.toFixed(2) + '</td>' : '<td class="zero">-</td>';
         }
-        html += '</div></div>';
+        html += '<td class="total-col">' + e.total.toFixed(2) + '</td></tr></table></div></div>';
       }
       html += '</div>';
 
