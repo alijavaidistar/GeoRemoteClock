@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geometris Clock</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #ffffff;
+      color: #212529;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== Header ===== */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 24px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .navbar-brand .logo-small {
+      height: 34px;
+      width: auto;
+    }
+
+    .navbar-brand h1 {
+      font-size: 1.35rem;
+      font-weight: bold;
+      color: #1a1a1a;
+    }
+
+    .datetime-pill {
+      background-color: #f1f3f5;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      color: #212529;
+    }
+
+    /* ===== Main ===== */
+    main {
+      flex: 1;
+      text-align: center;
+      padding: 40px 20px 60px;
+    }
+
+    .welcome-title {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+    }
+
+    .welcome-subtitle {
+      font-size: 1.3rem;
+      color: #8a94a6;
+      margin-bottom: 30px;
+    }
+
+    .logo-large {
+      width: 170px;
+      max-width: 80%;
+      height: auto;
+      margin-bottom: 40px;
+    }
+
+    /* ===== PUNCH button ===== */
+    .punch-btn {
+      display: inline-block;
+      background-color: #2e5da8;
+      color: #ffffff;
+      font-size: 2.6rem;
+      font-weight: bold;
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 34px 88px;
+      border: 1px solid #1a1a1a;
+      box-shadow: 8px 8px 0 #111111;
+      cursor: pointer;
+      letter-spacing: 1px;
+    }
+
+    .punch-btn:active {
+      transform: translate(4px, 4px);
+      box-shadow: 4px 4px 0 #111111;
+    }
+
+    .system-status {
+      display: inline-block;
+      margin-top: 60px;
+      border: 1px solid #d0e8d8;
+      border-radius: 4px;
+      padding: 12px 24px;
+      color: #1e9e50;
+      font-weight: bold;
+      font-size: 1.05rem;
+    }
+
+    /* ===== PIN Modal ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.45);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background-color: #ffffff;
+      width: 400px;
+      max-width: 92%;
+      border: 1px solid #cfcfcf;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .modal-titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .modal-titlebar .titlebar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-titlebar img {
+      height: 16px;
+      width: auto;
+    }
+
+    .modal-titlebar .titlebar-text {
+      font-size: 0.85rem;
+      color: #1a1a1a;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.15rem;
+      line-height: 1;
+      color: #1a1a1a;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    .modal-close:hover {
+      background-color: #f1f3f5;
+    }
+
+    .modal-body {
+      padding: 22px 26px 26px;
+      text-align: left;
+    }
+
+    .modal-body h2 {
+      font-size: 1.7rem;
+      font-weight: bold;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+
+    .modal-body .modal-subtitle {
+      font-size: 0.98rem;
+      color: #8a94a6;
+      margin-bottom: 24px;
+    }
+
+    .pin-input {
+      display: block;
+      width: 260px;
+      max-width: 100%;
+      margin: 0 auto 34px;
+      padding: 18px 10px;
+      font-size: 1.6rem;
+      text-align: center;
+      letter-spacing: 8px;
+      border: 1px solid #1a1a1a;
+      border-radius: 0;
+      outline: none;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 14px;
+    }
+
+    .btn-continue {
+      background-color: #2e5da8;
+      color: #ffffff;
+      border: none;
+      padding: 16px 30px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .btn-continue:hover {
+      background-color: #274f90;
+    }
+
+    .btn-cancel {
+      background-color: #f1f3f5;
+      color: #8a94a6;
+      border: none;
+      padding: 16px 34px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .btn-cancel:hover {
+      background-color: #e4e7ea;
+    }
+
+    .btn-continue:disabled,
+    .btn-cancel:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    /* Result view inside the modal */
+    .pin-result {
+      display: none;
+      text-align: center;
+      padding: 10px 0 6px;
+    }
+
+    .pin-result.show {
+      display: block;
+    }
+
+    .pin-result .result-icon {
+      font-size: 2.6rem;
+      margin-bottom: 10px;
+    }
+
+    .pin-result.success .result-icon { color: #1e9e50; }
+    .pin-result.error .result-icon { color: #c0392b; }
+
+    .pin-result .result-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+
+    .pin-result .result-detail {
+      font-size: 1rem;
+      color: #8a94a6;
+    }
+
+    /* ===== Footer ===== */
+    footer {
+      border-top: 1px solid #e0e0e0;
+      padding: 22px 20px;
+      text-align: center;
+      color: #6c757d;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+
+    footer .sep {
+      margin: 0 14px;
+      color: #adb5bd;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="navbar-brand">
+      <img class="logo-small" src="logo-mark.png" alt="Geometris logo">
+      <h1>Geometris Clock</h1>
+    </div>
+    <div class="datetime-pill">Friday, Aug 21&nbsp;&nbsp;&bull;&nbsp;&nbsp;02:26 PM</div>
+  </header>
+
+  <main>
+    <h1 class="welcome-title">Welcome to Work</h1>
+    <p class="welcome-subtitle">Press PUNCH and enter your PIN to log attendance.</p>
+
+    <img class="logo-large" src="logo-mark.png" alt="Geometris">
+
+    <div>
+      <button class="punch-btn" type="button">PUNCH</button>
+    </div>
+
+    <div class="system-status">System Status: Online</div>
+  </main>
+
+  <footer>
+    &copy; 2026 Geometris LP.<span class="sep">|</span>Made by Ali Javaid
+  </footer>
+
+  <div class="modal-overlay" id="pinModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pinModalTitle">
+      <div class="modal-titlebar">
+        <div class="titlebar-left">
+          <img src="logo-mark.png" alt="">
+          <span class="titlebar-text">Punch</span>
+        </div>
+        <button class="modal-close" id="pinModalClose" type="button" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div id="pinEntry">
+          <h2 id="pinModalTitle">Enter your PIN</h2>
+          <p class="modal-subtitle">We'll detect your current status automatically.</p>
+          <input class="pin-input" id="pinInput" type="password" inputmode="numeric" autocomplete="off" maxlength="8">
+          <div class="modal-actions">
+            <button class="btn-continue" id="pinContinue" type="button">Continue &rarr;</button>
+            <button class="btn-cancel" id="pinCancel" type="button">Cancel</button>
+          </div>
+        </div>
+        <div class="pin-result" id="pinResult">
+          <div class="result-icon" id="resultIcon"></div>
+          <div class="result-title" id="resultTitle"></div>
+          <div class="result-detail" id="resultDetail"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Paste your Apps Script Web App URL here (ends with /exec)
+    const SCRIPT_URL = '';
+
+    const pinModal = document.getElementById('pinModal');
+    const pinInput = document.getElementById('pinInput');
+    const pinEntry = document.getElementById('pinEntry');
+    const pinResult = document.getElementById('pinResult');
+    const btnContinue = document.getElementById('pinContinue');
+    const btnCancel = document.getElementById('pinCancel');
+    let resultTimer = null;
+
+    function openPinModal() {
+      clearTimeout(resultTimer);
+      pinInput.value = '';
+      pinEntry.style.display = 'block';
+      pinResult.classList.remove('show', 'success', 'error');
+      btnContinue.disabled = false;
+      btnContinue.innerHTML = 'Continue &rarr;';
+      pinModal.classList.add('open');
+      pinInput.focus();
+    }
+
+    function closePinModal() {
+      clearTimeout(resultTimer);
+      pinModal.classList.remove('open');
+      pinInput.value = '';
+    }
+
+    function showResult(kind, title, detail, autoCloseMs) {
+      pinEntry.style.display = 'none';
+      document.getElementById('resultIcon').textContent = kind === 'success' ? '✓' : '✕';
+      document.getElementById('resultTitle').textContent = title;
+      document.getElementById('resultDetail').textContent = detail || '';
+      pinResult.classList.remove('success', 'error');
+      pinResult.classList.add('show', kind);
+      if (autoCloseMs) resultTimer = setTimeout(closePinModal, autoCloseMs);
+    }
+
+    async function submitPin() {
+      const pin = pinInput.value.trim();
+      if (!pin) { pinInput.focus(); return; }
+
+      if (!SCRIPT_URL) {
+        showResult('error', 'Not connected', 'SCRIPT_URL is empty - paste your Apps Script web app URL in index.html.');
+        return;
+      }
+
+      btnContinue.disabled = true;
+      btnContinue.textContent = 'Checking...';
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ pin: pin })
+        });
+        const data = await res.json();
+
+        if (!data.ok) {
+          showResult('error', 'Punch failed', data.error || 'Unknown error.');
+        } else if (data.action === 'in') {
+          showResult('success', 'Clocked In', data.name + ' at ' + data.time, 4000);
+        } else {
+          showResult('success', 'Clocked Out',
+            data.name + ' at ' + data.time + ' - session ' + data.hours + ' hrs, today ' + data.totalToday + ' hrs',
+            5000);
+        }
+      } catch (err) {
+        showResult('error', 'Connection error', 'Could not reach the server. Check your internet and the script URL.');
+      }
+    }
+
+    document.querySelector('.punch-btn').addEventListener('click', openPinModal);
+    document.getElementById('pinModalClose').addEventListener('click', closePinModal);
+    btnCancel.addEventListener('click', closePinModal);
+    btnContinue.addEventListener('click', submitPin);
+
+    pinInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') submitPin();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && pinModal.classList.contains('open')) closePinModal();
+    });
+  </script>
+
+</body>
+</html>
