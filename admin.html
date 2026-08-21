@@ -337,6 +337,19 @@
       font-weight: bold;
     }
 
+    .sess-title {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #8a94a6;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 14px 0 6px;
+    }
+
+    .emp-card table.sess-table { max-width: 560px; }
+
+    .emp-card .sess-table td { font-weight: normal; }
+
     .open-badge {
       display: inline-block;
       background-color: #d4edda;
@@ -530,7 +543,22 @@
           const h = e.days[ymd(d)] || 0;
           html += h ? '<td>' + h.toFixed(2) + '</td>' : '<td class="zero">-</td>';
         }
-        html += '<td class="total-col">' + e.total.toFixed(2) + '</td></tr></table></div></div>';
+        html += '<td class="total-col">' + e.total.toFixed(2) + '</td></tr></table></div>';
+
+        // ---- Punch times detail ----
+        if (e.sessions && e.sessions.length) {
+          html += '<div class="sess-title">Punch Times</div>'
+            + '<div class="table-wrap"><table class="sess-table">'
+            + '<tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Hours</th></tr>';
+          for (const s of e.sessions) {
+            html += '<tr><td>' + s.date + '</td><td>' + s.in + '</td>'
+              + '<td>' + (s.out || '<span class="open-badge">still in</span>') + '</td>'
+              + '<td>' + (s.hours == null ? '<span class="zero">-</span>' : s.hours.toFixed(2)) + '</td></tr>';
+          }
+          html += '</table></div>';
+        }
+
+        html += '</div>';
       }
       html += '</div>';
 
