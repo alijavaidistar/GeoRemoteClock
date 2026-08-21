@@ -113,6 +113,63 @@
       font-size: 1.05rem;
     }
 
+    /* ===== Panels ===== */
+    .divider {
+      width: 600px;
+      max-width: 90%;
+      margin: 45px auto;
+      border: none;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .panels {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .panel {
+      background-color: #b3b3b3;
+      padding: 20px;
+      width: 340px;
+      text-align: left;
+    }
+
+    .panel h2 {
+      font-size: 1.35rem;
+      font-weight: bold;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+    }
+
+    .panel p {
+      font-size: 1rem;
+      color: #1a1a1a;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    .panel-btn {
+      display: block;
+      width: 100%;
+      background-color: #ffffff;
+      border: 1px solid #cccccc;
+      padding: 14px 0;
+      font-size: 1.05rem;
+      font-weight: bold;
+      color: #1a1a1a;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .panel-btn:hover {
+      background-color: #f1f3f5;
+    }
+
     /* ===== PIN Modal ===== */
     .modal-overlay {
       display: none;
@@ -316,6 +373,16 @@
     </div>
 
     <div class="system-status">System Status: Online</div>
+
+    <hr class="divider">
+
+    <div class="panels">
+      <div class="panel">
+        <h2>Employee Dashboard</h2>
+        <p>View your hours and punch times for each pay period.</p>
+        <a class="panel-btn" href="employee.html">Access Dashboard</a>
+      </div>
+    </div>
   </main>
 
   <footer>
