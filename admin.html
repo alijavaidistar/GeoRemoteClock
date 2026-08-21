@@ -163,6 +163,13 @@
 
     .period-nav button:hover { background-color: #e4e7ea; }
 
+    .period-nav button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .period-nav button:disabled:hover { background-color: #f1f3f5; }
+
     .period-label {
       font-size: 1.15rem;
       font-weight: bold;
@@ -200,49 +207,145 @@
       font-size: 1.05rem;
     }
 
-    h3.section-title {
-      font-size: 1.1rem;
-      color: #1a1a1a;
-      margin: 26px 0 10px;
+    /* ===== Stats row ===== */
+    .stats-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
     }
 
-    .table-wrap { overflow-x: auto; }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      font-size: 0.95rem;
-    }
-
-    th, td {
+    .stat-box {
+      flex: 1;
+      min-width: 150px;
       border: 1px solid #dee2e6;
-      padding: 10px 12px;
+      border-top: 3px solid #2e5da8;
+      padding: 16px 20px;
       text-align: center;
+    }
+
+    .stat-box .stat-num {
+      font-size: 1.9rem;
+      font-weight: bold;
+      color: #2e5da8;
+    }
+
+    .stat-box .stat-label {
+      font-size: 0.85rem;
+      color: #8a94a6;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    /* ===== Employee cards ===== */
+    .emp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap: 18px;
+    }
+
+    .emp-card {
+      border: 1px solid #dee2e6;
+      border-left: 4px solid #2e5da8;
+      padding: 16px 18px;
+      break-inside: avoid;
+    }
+
+    .emp-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .emp-name {
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: #1a1a1a;
+      overflow-wrap: anywhere;
+    }
+
+    .emp-total {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #2e5da8;
       white-space: nowrap;
     }
 
-    th {
-      background-color: #f1f3f5;
+    .emp-total .unit {
+      font-size: 0.85rem;
+      color: #8a94a6;
+      margin-left: 4px;
       font-weight: bold;
-      color: #1a1a1a;
     }
 
-    td.name-cell, th.name-cell { text-align: left; }
+    .week-chips {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
 
-    td.total-cell { font-weight: bold; }
+    .chip {
+      background-color: #f1f3f5;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      color: #495057;
+      border-radius: 4px;
+    }
+
+    .chip b { color: #1a1a1a; }
+
+    .day-strip {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .day-cell {
+      border: 1px solid #e9ecef;
+      padding: 5px 2px;
+      text-align: center;
+      background-color: #fafbfc;
+    }
+
+    .day-cell.has {
+      background-color: #eaf1fb;
+      border-color: #b9cdea;
+    }
+
+    .day-label {
+      font-size: 0.65rem;
+      color: #8a94a6;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .day-cell.has .day-label { color: #2e5da8; }
+
+    .day-val {
+      font-size: 0.82rem;
+      font-weight: bold;
+      color: #adb5bd;
+      margin-top: 2px;
+    }
+
+    .day-cell.has .day-val { color: #1a1a1a; }
 
     .open-badge {
       display: inline-block;
       background-color: #d4edda;
       color: #1e9e50;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: bold;
       padding: 2px 8px;
       border-radius: 10px;
       margin-left: 8px;
+      vertical-align: middle;
     }
-
-    .zero { color: #adb5bd; }
 
     footer {
       border-top: 1px solid #e0e0e0;
@@ -337,11 +440,6 @@
       return m[d.getMonth()] + ' ' + d.getDate() + (withYear ? ', ' + d.getFullYear() : '');
     }
 
-    function dayHeader(d) {
-      const w = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-      return w[d.getDay()] + ' ' + (d.getMonth() + 1) + '/' + d.getDate();
-    }
-
     function currentRange() {
       const len = mode === 'period' ? 14 : 7;
       const today = new Date();
@@ -378,11 +476,6 @@
       return res.json();
     }
 
-    function fmtH(h) {
-      if (!h) return '<span class="zero">-</span>';
-      return h.toFixed(2);
-    }
-
     function render(data, range) {
       const days = rangeDays(range);
       const emps = data.employees;
@@ -392,12 +485,18 @@
         return;
       }
 
-      let html = '';
+      let grand = 0, openCount = 0;
+      for (const e of emps) { grand += e.total; if (e.open) openCount++; }
+      grand = Math.round(grand * 100) / 100;
 
-      // ---- Summary table ----
-      html += '<h3 class="section-title">Summary</h3><div class="table-wrap"><table><tr><th class="name-cell">Employee</th>';
-      if (mode === 'period') html += '<th>Week 1</th><th>Week 2</th>';
-      html += '<th>Total Hours</th></tr>';
+      let html = '<div class="stats-row">'
+        + '<div class="stat-box"><div class="stat-num">' + emps.length + '</div><div class="stat-label">Employees</div></div>'
+        + '<div class="stat-box"><div class="stat-num">' + grand.toFixed(2) + '</div><div class="stat-label">Total Hours</div></div>'
+        + '<div class="stat-box"><div class="stat-num">' + openCount + '</div><div class="stat-label">Clocked In Now</div></div>'
+        + '</div>';
+
+      html += '<div class="emp-grid">';
+      const wd = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
       for (const e of emps) {
         let w1 = 0, w2 = 0;
@@ -407,29 +506,37 @@
         });
         w1 = Math.round(w1 * 100) / 100;
         w2 = Math.round(w2 * 100) / 100;
-        const badge = e.open ? '<span class="open-badge">clocked in</span>' : '';
-        html += '<tr><td class="name-cell">' + e.name + badge + '</td>';
-        if (mode === 'period') html += '<td>' + fmtH(w1) + '</td><td>' + fmtH(w2) + '</td>';
-        html += '<td class="total-cell">' + fmtH(e.total) + '</td></tr>';
-      }
-      html += '</table></div>';
 
-      // ---- Daily breakdown ----
-      html += '<h3 class="section-title">Daily Breakdown</h3><div class="table-wrap"><table><tr><th class="name-cell">Employee</th>';
-      for (const d of days) html += '<th>' + dayHeader(d) + '</th>';
-      html += '</tr>';
-      for (const e of emps) {
-        html += '<tr><td class="name-cell">' + e.name + '</td>';
-        for (const d of days) html += '<td>' + fmtH(e.days[ymd(d)] || 0) + '</td>';
-        html += '</tr>';
+        const badge = e.open ? '<span class="open-badge">clocked in</span>' : '';
+        html += '<div class="emp-card">'
+          + '<div class="emp-head"><div class="emp-name">' + e.name + badge + '</div>'
+          + '<div class="emp-total">' + e.total.toFixed(2) + '<span class="unit">hrs</span></div></div>';
+
+        if (mode === 'period') {
+          html += '<div class="week-chips">'
+            + '<span class="chip">Week 1: <b>' + w1.toFixed(2) + '</b></span>'
+            + '<span class="chip">Week 2: <b>' + w2.toFixed(2) + '</b></span>'
+            + '</div>';
+        }
+
+        html += '<div class="day-strip">';
+        for (const d of days) {
+          const h = e.days[ymd(d)] || 0;
+          html += '<div class="day-cell' + (h ? ' has' : '') + '">'
+            + '<div class="day-label">' + wd[d.getDay()] + ' ' + d.getDate() + '</div>'
+            + '<div class="day-val">' + (h ? h.toFixed(2) : '-') + '</div>'
+            + '</div>';
+        }
+        html += '</div></div>';
       }
-      html += '</table></div>';
+      html += '</div>';
 
       $('reportContent').innerHTML = html;
     }
 
     async function loadReport() {
       const range = currentRange();
+      $('btnNext').disabled = offset >= 0; // no browsing into the future
       $('periodLabel').textContent = niceDate(range.start, false) + ' - ' + niceDate(range.end, true);
       $('loadingMsg').style.display = 'block';
       $('reportContent').innerHTML = '';
@@ -500,7 +607,7 @@
     $('adminPass').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
     $('btnLogout').addEventListener('click', logout);
     $('btnPrev').addEventListener('click', () => { offset--; loadReport(); });
-    $('btnNext').addEventListener('click', () => { offset++; loadReport(); });
+    $('btnNext').addEventListener('click', () => { if (offset < 0) { offset++; loadReport(); } });
     $('btnPrint').addEventListener('click', () => window.print());
     $('btnModePeriod').addEventListener('click', () => {
       mode = 'period'; offset = 0;
